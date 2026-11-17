@@ -16,8 +16,9 @@ Plugin de eventos **King of the Hill** para **NukkitPetteriM1Edition (PM1E)**. A
 - Recompensas por victoria y participación: comandos de consola y objetos por ID/meta/cantidad.
 - Estadísticas persistentes: victorias, derrotas, capturas, eliminaciones y muertes.
 - Horarios automáticos por zona horaria, hora y días de la semana.
-- Protección configurable contra romper, colocar e interactuar con bloques dentro del cuboide activo.
-- Control de daño entre aliados y bloqueo de ataques que involucren participantes externos al mismo evento.
+- Protección configurable de bloques, interacciones, cubos, líquidos, explosiones y teletransportes fuera de la arena.
+- Control de daño entre aliados, disputas entre bandos y restricción de teletransportes de participantes fuera del cuboide.
+- Protección de líquidos, explosiones y cubos mediante eventos reales de PM1E.
 - Modo espectador y restauración del modo de juego y ubicación al salir/finalizar.
 - HUD de progreso con BossBar nativa de PM1E y popup de Bedrock.
 - Anillo de partículas configurable y sonidos nativos para inicio, disputa y victoria.
@@ -44,7 +45,7 @@ El JAR se genera en:
 target/KingOfTheHillNK-1.0.0-SNAPSHOT.jar
 ```
 
-La API Nukkit está declarada con scope `provided`: no se empaqueta dentro del plugin. El POM usa el artefacto público `cn.nukkit:nukkit:1.0-SNAPSHOT` del repositorio OpenCollab para resolver la API de compilación. Para compilar contra un build privado/modificado de PM1E, instala el JAR de tu servidor en el repositorio Maven local con las coordenadas usadas por tu build, o ajusta la dependencia al artefacto PM1E que tengas publicado. No copies la API del servidor dentro del plugin.
+La API está declarada con scope `provided`: no se empaqueta dentro del plugin. Por defecto Maven resuelve `cn.nukkit:nukkit:1.0-SNAPSHOT` desde OpenCollab. Para compilar contra el servidor exacto PM1E, coloca una copia del JAR del servidor en `libs/server.jar`; el perfil `pm1e-local` se activa automáticamente y compila contra ese archivo. El JAR del servidor está excluido de Git. No empaquetes la API dentro del plugin.
 
 ## Instalación
 
@@ -104,6 +105,8 @@ Ejemplo para una arena llamada `castle`:
 | `/koth setmode <arena> <individual|teams>` | Cambia modalidad |
 | `/koth setcapture <arena> <individual|majority>` | Cambia método |
 | `/koth settime <arena> <segundos>` | Cambia duración de captura |
+| `/koth setradius <arena> <bloques>` | Cambia radio de captura |
+| `/koth setmaxplayers <arena> <cantidad>` | Cambia límite de participantes |
 | `/koth setradius <arena> <bloques>` | Cambia radio del punto de captura (1–64) |
 | `/koth setmaxplayers <arena> <cantidad>` | Cambia límite de participantes |
 | `/koth team <arena> <jugador> <equipo>` | Asigna equipo manual |
@@ -128,7 +131,7 @@ Los jugadores asignados al mismo equipo mediante `/koth team` comparten grupo. L
 Exige que haya exactamente un jugador elegible dentro de la zona.
 
 ### Método majority
-El grupo con más jugadores debe representar estrictamente más de la mitad de los jugadores elegibles. Si hay empate o no existe mayoría absoluta, el punto queda disputado y el progreso no avanza.
+El grupo debe tener más de la mitad de sus miembros vivos y participantes dentro del punto. Si hay jugadores de otro grupo dentro de la zona, el punto queda disputado y el progreso se pausa hasta que solo quede un bando. En modo individual cada jugador es su propio grupo.
 
 ## Recompensas
 
