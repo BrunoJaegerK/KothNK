@@ -7,10 +7,14 @@ event:
   max-players: 50
   reset-progress-when-empty: false
   show-actionbar: true
+  show-bossbar: true
   protect-region: true
   block-break: true
   block-place: true
   friendly-fire: false
+effects:
+  particles: true
+  sounds: true
 teams:
   require-assignment: false
 clans:

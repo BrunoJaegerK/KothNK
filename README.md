@@ -19,7 +19,8 @@ Plugin de eventos **King of the Hill** para **NukkitPetteriM1Edition (PM1E)**. A
 - Protección configurable contra romper/colocar bloques dentro de la región activa.
 - Control de daño entre aliados y bloqueo de ataques que involucren participantes externos al mismo evento.
 - Modo espectador y restauración del modo de juego y ubicación al salir/finalizar.
-- HUD de progreso mediante popup de Bedrock, sin dependencia de APIs externas de scoreboard.
+- HUD de progreso con BossBar nativa de PM1E y popup de Bedrock.
+- Anillo de partículas configurable y sonidos nativos para inicio, disputa y victoria.
 
 ## Requisitos
 
@@ -207,8 +208,7 @@ com.brunojaegerk.koth
 
 ## Limitaciones conocidas de esta primera entrega
 
-- La interfaz de progreso utiliza popup Bedrock; todavía no crea una sidebar nativa ni una BossBar persistente.
-- Los efectos dedicados de partículas/sonidos aún no están conectados.
+- No se implementa todavía una sidebar persistente; el estado se muestra en BossBar y popup.
 - La protección cubre colocación y rotura de bloques; no intercepta todavía cada interacción de inventario, líquidos, explosiones o teletransportes.
 - La API pública disponible de ClanSystemMX no basta para resolver el ID de clan de forma verificable; se mantiene el proveedor manual.
 - La captura por mayoría y la disputa se resuelven con mayoría absoluta; el combate PvP está permitido entre equipos rivales dentro del mismo evento.

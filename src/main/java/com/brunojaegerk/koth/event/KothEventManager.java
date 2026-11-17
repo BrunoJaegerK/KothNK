@@ -6,10 +6,14 @@ import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.player.PlayerDeathEvent;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
+import cn.nukkit.level.Sound;
+import cn.nukkit.level.particle.Particle;
 import com.brunojaegerk.koth.KingOfTheHillNK;
 import com.brunojaegerk.koth.arena.Arena;
 import com.brunojaegerk.koth.arena.ArenaManager;
+import com.brunojaegerk.koth.effect.CaptureEffects;
 import com.brunojaegerk.koth.reward.RewardManager;
+import com.brunojaegerk.koth.scoreboard.BossBarManager;
 import com.brunojaegerk.koth.statistics.StatisticsManager;
 import com.brunojaegerk.koth.team.TeamManager;
 import java.util.*;
@@ -17,21 +21,27 @@ import java.util.*;
 public final class KothEventManager {
     private final KingOfTheHillNK plugin;private final ArenaManager arenas;private final TeamManager teams;
     private final StatisticsManager stats;private final RewardManager rewards;
+    private final BossBarManager bossBars;private final CaptureEffects effects;
     private final Map<String,KothEvent> active=new LinkedHashMap<>();private final Map<UUID,UUID> lastDamager=new HashMap<>();
-    public KothEventManager(KingOfTheHillNK p,ArenaManager a,TeamManager t,StatisticsManager s,RewardManager r){plugin=p;arenas=a;teams=t;stats=s;rewards=r;}
+    public KothEventManager(KingOfTheHillNK p,ArenaManager a,TeamManager t,StatisticsManager s,RewardManager r){
+        plugin=p;arenas=a;teams=t;stats=s;rewards=r;bossBars=new BossBarManager(p);effects=new CaptureEffects(p);
+    }
     private String key(String s){return s.toLowerCase(Locale.ROOT);}
     public boolean running(String n){return active.containsKey(key(n));}
     public KothEvent get(String n){return active.get(key(n));}
     public boolean start(String name){
         Arena a=arenas.get(name);if(a==null||running(name)||!a.ready()||plugin.getServer().getLevelByName(a.world())==null)return false;
         int delay=plugin.getConfig().getInt("event.countdown-seconds",60);active.put(key(name),new KothEvent(a,delay));
+        effects.sound(a,Sound.BLOCK_BEACON_ACTIVATE);
         plugin.getServer().broadcastMessage(plugin.message("event-starting").replace("{arena}",name).replace("{seconds}",String.valueOf(delay)));return true;
     }
     public boolean stop(String name){KothEvent e=active.remove(key(name));if(e==null)return false;e.state(KothState.ENDING);restore(e);plugin.getServer().broadcastMessage(plugin.message("event-stopped").replace("{arena}",name));return true;}
     public boolean join(String name,Player p){
         KothEvent e=get(name);if(e==null||e.participants().size()>=e.arena().maxPlayers())return false;
         for(KothEvent other:active.values())if(other.contains(p.getUniqueId()))return false;
-        e.add(p);teleport(p,e.arena(),false);p.sendMessage(plugin.message("joined").replace("{arena}",name));return true;
+        e.add(p);teleport(p,e.arena(),false);p.sendMessage(plugin.message("joined").replace("{arena}",name));
+        if(plugin.getConfig().getBoolean("event.show-bossbar",true))bossBars.update(name,p,"§6KOTH §f"+name+" §7Preparando",0);
+        return true;
     }
     public boolean spectate(String name,Player p){
         KothEvent e=get(name);if(e==null)return false;for(KothEvent other:active.values())if(other.contains(p.getUniqueId()))return false;
@@ -58,12 +68,14 @@ public final class KothEventManager {
             e.tickElapsed();
             if(e.elapsed()>=plugin.getConfig().getInt("event.max-duration-seconds",1800)){it.remove();for(UUID id:e.participants()){Player p=online(id);if(p!=null)rewards.participation(p,a.name());}restore(e);continue;}
             Map<String,List<Player>> groups=eligible(e);int count=groups.values().stream().mapToInt(List::size).sum();
-            if(count==0){e.state(KothState.AVAILABLE);e.owner(null);if(plugin.getConfig().getBoolean("event.reset-progress-when-empty",false))e.progress(0);hud(e,"§7Esperando jugadores");continue;}
+            if(count==0){e.state(KothState.AVAILABLE);e.owner(null);if(plugin.getConfig().getBoolean("event.reset-progress-when-empty",false))e.progress(0);hud(e,"§7Esperando jugadores",0);continue;}
             String owner=choose(a,groups,count);
-            if(owner==null){e.state(KothState.CONTESTED);hud(e,"§c¡DISPUTADO! §7Gana la mayoría o despeja la zona");continue;}
+            if(owner==null){if(e.state()!=KothState.CONTESTED)effects.sound(a,Sound.BLOCK_BELL_HIT);e.state(KothState.CONTESTED);effects.ring(a,Particle.TYPE_CRITICAL);hud(e,"§c¡DISPUTADO! §7Gana la mayoría o despeja la zona",e.progress()*100/Math.max(1,a.captureSeconds()));continue;}
+            if(e.state()==KothState.CONTESTED)effects.sound(a,Sound.BLOCK_BEACON_POWER);
             if(!owner.equals(e.owner())){e.owner(owner);e.progress(0);}
             e.state(KothState.CAPTURING);e.progress(e.progress()+1);
-            int percent=Math.min(100,e.progress()*100/Math.max(1,a.captureSeconds()));hud(e,"§aCaptura §f"+percent+"% §8("+e.progress()+"/"+a.captureSeconds()+"s)");
+            int percent=Math.min(100,e.progress()*100/Math.max(1,a.captureSeconds()));effects.ring(a,Particle.TYPE_END_ROD);
+            hud(e,"§aCaptura §f"+percent+"% §8("+e.progress()+"/"+a.captureSeconds()+"s)",percent);
             if(e.progress()>=a.captureSeconds()){finish(e,groups.get(owner));it.remove();}
         }
     }
@@ -83,10 +95,16 @@ public final class KothEventManager {
         e.state(KothState.CAPTURED);Set<UUID> ids=new HashSet<>();boolean team="teams".equalsIgnoreCase(e.arena().mode());
         for(Player p:winners){ids.add(p.getUniqueId());stats.win(p);stats.capture(p);rewards.winner(p,e.arena().name(),team);}
         for(UUID id:e.participants()){Player p=online(id);if(p!=null&&!ids.contains(id)){stats.loss(p);rewards.participation(p,e.arena().name());}}
+        effects.sound(e.arena(),Sound.RANDOM_LEVELUP);effects.ring(e.arena(),Particle.TYPE_VILLAGER_HAPPY);
         String names=String.join(", ",winners.stream().map(Player::getName).toList());
         plugin.getServer().broadcastMessage(plugin.message("winner").replace("{player}",names).replace("{arena}",e.arena().name()));restore(e);
     }
-    private void hud(KothEvent e,String text){if(!plugin.getConfig().getBoolean("event.show-actionbar",true))return;for(UUID id:e.participants()){Player p=online(id);if(p!=null)p.sendPopup("§6KOTH §f"+e.arena().name()+" §8| "+text);}}
+    private void hud(KothEvent e,String text,int percent){
+        for(UUID id:e.participants()){Player p=online(id);if(p==null)continue;
+            if(plugin.getConfig().getBoolean("event.show-actionbar",true))p.sendPopup("§6KOTH §f"+e.arena().name()+" §8| "+text);
+            if(plugin.getConfig().getBoolean("event.show-bossbar",true))bossBars.update(e.arena().name(),p,"§6KOTH §f"+e.arena().name()+" §8| "+text,percent);
+        }
+    }
     public void damage(EntityDamageByEntityEvent event){
         if(!(event.getEntity() instanceof Player victim))return;
         Player attacker=event.getDamager() instanceof Player?(Player)event.getDamager():null;
@@ -102,11 +120,11 @@ public final class KothEventManager {
         }else if(ve!=ae)event.setCancelled();
     }
     public void death(PlayerDeathEvent event){Player victim=event.getEntity();stats.death(victim);UUID id=lastDamager.remove(victim.getUniqueId());Player killer=id==null?null:online(id);if(killer!=null)stats.kill(killer);}
-    public void quit(Player p){lastDamager.remove(p.getUniqueId());for(KothEvent e:active.values()){e.participants().remove(p.getUniqueId());e.spectators().remove(p.getUniqueId());e.returnPositions().remove(p.getUniqueId());e.previousGamemodes().remove(p.getUniqueId());}}
+    public void quit(Player p){lastDamager.remove(p.getUniqueId());for(KothEvent e:active.values()){e.participants().remove(p.getUniqueId());e.spectators().remove(p.getUniqueId());e.returnPositions().remove(p.getUniqueId());e.previousGamemodes().remove(p.getUniqueId());bossBars.forget(e.arena().name(),p.getUniqueId());}}
     public void protect(Player p,Cancellable event){if(!plugin.getConfig().getBoolean("event.protect-region",true))return;for(KothEvent e:active.values())if(e.arena().inside(p)){event.setCancelled();return;}}
     private KothEvent find(UUID id){for(KothEvent e:active.values())if(e.contains(id))return e;return null;}
     private Player online(UUID id){for(Player p:plugin.getServer().getOnlinePlayersList())if(p.getUniqueId().equals(id))return p;return null;}
     private void restore(KothEvent e){for(UUID id:new HashSet<>(e.participants())){Player p=online(id);if(p!=null)restoreOne(e,p);}for(UUID id:new HashSet<>(e.spectators())){Player p=online(id);if(p!=null)restoreOne(e,p);}}
-    private void restoreOne(KothEvent e,Player p){Position pos=e.returnPositions().get(p.getUniqueId());if(pos!=null&&pos.getLevel()!=null)p.teleport(pos);Integer gm=e.previousGamemodes().get(p.getUniqueId());if(gm!=null)p.setGamemode(gm);}
-    public void shutdown(){for(KothEvent e:active.values())restore(e);active.clear();lastDamager.clear();}
+    private void restoreOne(KothEvent e,Player p){bossBars.remove(e.arena().name(),p);Position pos=e.returnPositions().get(p.getUniqueId());if(pos!=null&&pos.getLevel()!=null)p.teleport(pos);Integer gm=e.previousGamemodes().get(p.getUniqueId());if(gm!=null)p.setGamemode(gm);}
+    public void shutdown(){for(KothEvent e:active.values())restore(e);active.clear();lastDamager.clear();bossBars.clear();}
 }

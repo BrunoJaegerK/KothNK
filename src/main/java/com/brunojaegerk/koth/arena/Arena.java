@@ -12,10 +12,9 @@ public final class Arena {
     private String mode="individual",captureMethod="individual";
     public Arena(String name){this.name=name;}
     public String name(){return name;} public String world(){return world;}
-    public int captureSeconds(){return captureSeconds;} public int maxPlayers(){return maxPlayers;}
+    public int captureSeconds(){return captureSeconds;} public int maxPlayers(){return maxPlayers;} public double radius(){return radius;}
     public String mode(){return mode;} public String captureMethod(){return captureMethod;}
-    public boolean ready(){return !world.isEmpty()&&p1&&p2&&center;}
-    public boolean hasCenter(){return center;}
+    public boolean ready(){return !world.isEmpty()&&p1&&p2&&center;} public boolean hasCenter(){return center;}
     public void setMode(String v){mode=v;} public void setCaptureMethod(String v){captureMethod=v;}
     public void setCaptureSeconds(int v){captureSeconds=Math.max(1,v);}
     private void useWorld(Player p){String next=p.getLevel().getName();if(!world.isEmpty()&&!world.equalsIgnoreCase(next))throw new IllegalArgumentException("Todas las posiciones de una arena deben estar en el mismo mundo.");world=next;}
