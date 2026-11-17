@@ -14,7 +14,8 @@ Plugin de eventos **King of the Hill** para **NukkitPetteriM1Edition (PM1E)**. A
 - Progreso de captura, cuenta regresiva y límite de duración.
 - Asignación manual de equipos por arena.
 - Recompensas por victoria y participación: comandos de consola y objetos por ID/meta/cantidad.
-- Estadísticas persistentes: victorias, derrotas, capturas, eliminaciones y muertes.
+- Estadísticas persistentes: victorias, derrotas, capturas, eliminaciones, muertes, participaciones, rachas y tiempo acumulado de captura.
+- Recompensas configurables por eliminaciones.
 - Horarios automáticos por zona horaria, hora y días de la semana.
 - Protección configurable de bloques, interacciones, cubos, líquidos, explosiones y teletransportes fuera de la arena.
 - Control de daño entre aliados, disputas entre bandos y restricción de teletransportes de participantes fuera del cuboide.
@@ -112,6 +113,9 @@ Ejemplo para una arena llamada `castle`:
 | `/koth setradius <arena> <bloques>` | Cambia radio del punto de captura (1–64) |
 | `/koth setmaxplayers <arena> <cantidad>` | Cambia límite de participantes |
 | `/koth team <arena> <jugador> <equipo>` | Asigna equipo manual |
+| `/koth teamjoin <arena> <equipo>` | El jugador elige equipo durante el evento |
+| `/koth teamleave <arena>` | El jugador abandona su equipo |
+| `/koth autobalance <arena>` | Reparte participantes entre red y blue |
 | `/koth start <arena>` | Inicia cuenta regresiva |
 | `/koth stop <arena>` | Detiene el evento |
 | `/koth schedule <arena> <HH:mm> <DÍAS>` | Programa horario |
@@ -155,6 +159,10 @@ default:
     items: []
   team-winner:
     commands: []
+    items: []
+  kill:
+    commands:
+      - "tell {player} Has eliminado a un rival en {arena}"
     items: []
 arenas: {}
 ```
