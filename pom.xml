@@ -16,6 +16,10 @@
   </properties>
   <repositories>
     <repository>
+      <id>repo-lanink-cn</id>
+      <url>https://repo.lanink.cn/repository/maven-public/</url>
+    </repository>
+    <repository>
       <id>opencollab-snapshots</id>
       <url>https://repo.opencollab.dev/maven-snapshots/</url>
       <releases><enabled>false</enabled></releases>
@@ -36,8 +40,8 @@
       <dependencies>
         <dependency>
           <groupId>cn.nukkit</groupId>
-          <artifactId>nukkit</artifactId>
-          <version>1.0-SNAPSHOT</version>
+          <artifactId>Nukkit</artifactId>
+          <version>PM1E_1.20.50.3397</version>
           <scope>provided</scope>
         </dependency>
       </dependencies>
