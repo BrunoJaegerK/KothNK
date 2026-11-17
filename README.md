@@ -49,9 +49,9 @@ La API se declara con scope `provided`, por lo que no se empaqueta dentro del pl
 
 **Compilar contra PM1E exacto:** coloca una copia del JAR del servidor en `libs/server.jar`. Maven activa automáticamente el perfil `pm1e-local` y compila contra ese JAR. El archivo está excluido de Git.
 
-**Compilación sin JAR local:** el perfil por defecto usa `cn.nukkit:nukkit:1.0-SNAPSHOT` desde OpenCollab. Es una API de compilación compatible a nivel de Nukkit, pero para verificar la distribución exacta del servidor se recomienda el perfil local.
+**Compilación sin JAR local:** el perfil por defecto usa `cn.nukkit:Nukkit:PM1E_1.20.50.3397` desde el repositorio Lanink. Es una versión publicada antigua de PM1E; para verificar la distribución exacta que ejecutas, se recomienda compilar con `libs/server.jar`.
 
-El workflow de GitHub Actions está configurado para compilar con Java 17 en cada push a `main` y en pull requests.
+El workflow de GitHub Actions compila con Java 17 en cada push a `main` y en pull requests; publica el JAR como artefacto descargable de cada ejecución.
 
 ## Instalación
 
