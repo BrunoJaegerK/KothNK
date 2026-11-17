@@ -23,7 +23,7 @@ public final class ScoreboardManager {
  public void remove(Player player){UUID id=player.getUniqueId();Scoreboard board=boards.remove(id);lastLines.remove(id);if(board!=null)board.hideFor(player);}
  public void forget(UUID id){boards.remove(id);lastLines.remove(id);}
  public void clear(){
-  for(Player player:plugin.getServer().getOnlinePlayersList())remove(player);
+  for(Player player:plugin.getServer().getOnlinePlayers().values())remove(player);
   boards.clear();lastLines.clear();
  }
 }
