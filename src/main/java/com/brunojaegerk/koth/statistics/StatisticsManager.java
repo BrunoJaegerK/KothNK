@@ -15,7 +15,7 @@ public final class StatisticsManager {
  public void death(Player p){increment(p,"deaths");}
  public void kill(Player p){increment(p,"kills");}
  public void capture(Player p){increment(p,"captures");}
- public void captureTime(Player p){String k=path(p)+"capture-seconds";data.set(k,data.getInt(k,0)+1);dirty++;}
+ public void captureTime(Player p){String k=path(p)+"capture-seconds";data.set(k,data.getInt(k,0)+1);touch(p);}
  public void win(Player p){
   increment(p,"wins");String base=path(p);int streak=data.getInt(base+"win-streak",0)+1;
   data.set(base+"win-streak",streak);data.set(base+"best-streak",Math.max(streak,data.getInt(base+"best-streak",0)));persistMaybe();
