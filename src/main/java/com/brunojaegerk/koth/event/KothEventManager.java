@@ -4,6 +4,7 @@ import cn.nukkit.block.Block;
 import cn.nukkit.event.Cancellable;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.player.PlayerDeathEvent;
+import cn.nukkit.event.player.PlayerRespawnEvent;
 import cn.nukkit.event.player.PlayerTeleportEvent;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.projectile.EntityProjectile;
@@ -137,6 +138,13 @@ public final class KothEventManager {
   if(damager instanceof Player player)return player;
   if(damager instanceof EntityProjectile projectile&&projectile.shootingEntity instanceof Player shooter)return shooter;
   return null;
+ }
+ public void respawn(PlayerRespawnEvent event){
+  KothEvent e=find(event.getPlayer().getUniqueId());if(e==null)return;
+  Arena a=e.arena();Level level=plugin.getServer().getLevelByName(a.world());if(level==null)return;
+  if(e.spectators().contains(event.getPlayer().getUniqueId())&&a.hasSpectator())event.setRespawnPosition(new Position(a.specX(),a.specY(),a.specZ(),level));
+  else if(a.hasSpawn())event.setRespawnPosition(new Position(a.spawnX(),a.spawnY(),a.spawnZ(),level));
+  else if(a.hasCenter())event.setRespawnPosition(new Position(a.centerX(),a.centerY()+1,a.centerZ(),level));
  }
  public void death(PlayerDeathEvent event){Player victim=event.getEntity();KothEvent victimEvent=find(victim.getUniqueId());UUID id=lastDamager.remove(victim.getUniqueId());if(victimEvent==null)return;stats.death(victim);Player killer=id==null?null:online(id);if(killer!=null){stats.kill(killer);rewards.kill(killer,victimEvent.arena().name());}}
  public void quit(Player p){lastDamager.remove(p.getUniqueId());teleportBypass.remove(p.getUniqueId());for(KothEvent e:active.values()){e.participants().remove(p.getUniqueId());e.spectators().remove(p.getUniqueId());e.returnPositions().remove(p.getUniqueId());e.previousGamemodes().remove(p.getUniqueId());bars.forget(e.arena().name(),p.getUniqueId());sidebars.forget(p.getUniqueId());}}
