@@ -10,6 +10,7 @@ public final class KothListener implements Listener {
  public KothListener(KingOfTheHillNK plugin){this.plugin=plugin;}
  @EventHandler public void onDamage(EntityDamageByEntityEvent e){plugin.events().damage(e);}
  @EventHandler public void onDeath(PlayerDeathEvent e){plugin.events().death(e);}
+ @EventHandler public void onRespawn(PlayerRespawnEvent e){plugin.events().respawn(e);}
  @EventHandler public void onQuit(PlayerQuitEvent e){plugin.events().quit(e.getPlayer());}
  @EventHandler public void onTeleport(PlayerTeleportEvent e){plugin.events().teleport(e);}
  @EventHandler public void onBreak(BlockBreakEvent e){if(plugin.getConfig().getBoolean("event.block-break",true))plugin.events().protectBlock(e.getBlock(),e);}
