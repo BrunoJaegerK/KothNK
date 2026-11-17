@@ -14,9 +14,11 @@ public final class KothCommand {
         if(sub.equals("list")){sender.sendMessage("§6Arenas KOTH:");for(Arena a:plugin.arenas().all())sender.sendMessage("§e- "+a.name()+" §7["+a.mode()+"/"+a.captureMethod()+"]");return true;}
         if(sub.equals("stats")){if(sender instanceof Player p)sender.sendMessage(plugin.stats().summary(p));else sender.sendMessage("Solo jugadores.");return true;}
         if(sub.equals("top")){sender.sendMessage("§6Clasificación KOTH");for(String line:plugin.stats().top(10))sender.sendMessage("§e"+line);return true;}
-        if(sub.equals("join")||sub.equals("leave")||sub.equals("spectate")){
+        if(sub.equals("join")||sub.equals("leave")||sub.equals("spectate")||sub.equals("teamjoin")||sub.equals("teamleave")){
             if(!(sender instanceof Player p)){sender.sendMessage("§cEste comando requiere un jugador.");return true;}
             if(sub.equals("leave")){plugin.events().leave(p);return true;}
+            if(sub.equals("teamjoin")){need(args,3);var event=plugin.events().get(args[1]);if(event==null||!event.participants().contains(p.getUniqueId()))throw new IllegalArgumentException("Debes participar en ese KOTH para elegir equipo.");plugin.teams().assign(args[1],p,args[2]);sender.sendMessage("§aTe uniste al equipo "+args[2]+".");return true;}
+            if(sub.equals("teamleave")){need(args,2);plugin.teams().unassign(args[1],p);sender.sendMessage("§eSaliste de tu equipo en esa arena.");return true;}
             if(args.length<2){sender.sendMessage("§cUso: /koth "+sub+" <arena>");return true;}
             boolean ok=sub.equals("join")?plugin.events().join(args[1],p):plugin.events().spectate(args[1],p);
             sender.sendMessage(ok?"§aAcción completada.":"§cNo se pudo entrar; verifica el evento y tu participación actual.");return true;
@@ -39,6 +41,7 @@ public final class KothCommand {
                 case "setradius" -> {need(args,3);plugin.arenas().radius(args[1],Double.parseDouble(args[2]));sender.sendMessage("§aRadio de captura actualizado.");}
                 case "setmaxplayers" -> {need(args,3);plugin.arenas().maxPlayers(args[1],Integer.parseInt(args[2]));sender.sendMessage("§aLímite de jugadores actualizado.");}
                 case "team" -> {need(args,4);Player target=null;for(Player p:plugin.getServer().getOnlinePlayersList())if(p.getName().equalsIgnoreCase(args[2]))target=p;if(target==null)throw new IllegalArgumentException("El jugador debe estar conectado.");plugin.teams().assign(args[1],target,args[3]);sender.sendMessage("§aEquipo asignado.");}
+                case "autobalance" -> {need(args,2);var event=plugin.events().get(args[1]);if(event==null)throw new IllegalArgumentException("El evento no está activo.");int index=0;for(Player target:plugin.getServer().getOnlinePlayersList())if(event.participants().contains(target.getUniqueId()))plugin.teams().assign(args[1],target,(index++%2==0)?"red":"blue");sender.sendMessage("§aEquipos balanceados: red / blue.");}
                 case "schedule" -> {need(args,4);plugin.scheduleConfig().set("enabled",true);plugin.scheduleConfig().set("events."+args[1]+".time",args[2]);plugin.scheduleConfig().set("events."+args[1]+".days",java.util.Arrays.asList(args[3].toUpperCase(Locale.ROOT).split(",")));plugin.scheduleConfig().save();sender.sendMessage("§aHorario guardado.");}
                 case "unschedule" -> {need(args,2);plugin.scheduleConfig().getSection("events").remove(args[1]);plugin.scheduleConfig().save();sender.sendMessage("§aHorario eliminado.");}
                 case "reload" -> {plugin.reloadAll();sender.sendMessage("§aConfiguración recargada.");}
@@ -56,7 +59,8 @@ public final class KothCommand {
         s.sendMessage("§c/koth pos1|pos2|setcenter|setspawn|setspectator <arena>");
         s.sendMessage("§c/koth setmode <arena> <individual|teams> §7| §c/koth setcapture <arena> <individual|majority>");
         s.sendMessage("§c/koth settime <arena> <segundos> §7| §c/koth setradius <arena> <bloques> §7| §c/koth setmaxplayers <arena> <cantidad>");
-        s.sendMessage("§c/koth team <arena> <jugador> <equipo>");
+        s.sendMessage("§c/koth team <arena> <jugador> <equipo> §7| §c/koth autobalance <arena>");
+        s.sendMessage("§e/koth teamjoin <arena> <equipo> §7| §e/koth teamleave <arena>");
         s.sendMessage("§c/koth schedule <arena> <HH:mm> <MONDAY,TUESDAY,...> §7| §c/koth unschedule <arena>");
         s.sendMessage("§c/koth setreward <arena> §7| §c/koth reload");
     }
