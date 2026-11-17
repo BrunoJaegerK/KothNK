@@ -51,7 +51,7 @@ La API se declara con scope `provided`, por lo que no se empaqueta dentro del pl
 
 **Compilación sin JAR local:** el perfil por defecto usa `cn.nukkit:nukkit:1.0-SNAPSHOT` desde OpenCollab. Es una API de compilación compatible a nivel de Nukkit, pero para verificar la distribución exacta del servidor se recomienda el perfil local.
 
-El workflow de GitHub Actions está configurado para compilar con Java 17 en cada push a `main` y en pull requests.
+El workflow de GitHub Actions está configurado para compilar con Java 17 en cada push a `main` y en pull requests; publica el JAR como artefacto descargable de la ejecución.
 
 ## Instalación
 
