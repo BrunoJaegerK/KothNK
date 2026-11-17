@@ -4,6 +4,7 @@ import cn.nukkit.Player;
 import cn.nukkit.command.CommandSender;
 import com.brunojaegerk.koth.KingOfTheHillNK;
 import com.brunojaegerk.koth.arena.Arena;
+import com.brunojaegerk.koth.event.KothState;
 import java.util.Locale;
 
 public final class KothCommand {
@@ -17,8 +18,8 @@ public final class KothCommand {
         if(sub.equals("join")||sub.equals("leave")||sub.equals("spectate")||sub.equals("teamjoin")||sub.equals("teamleave")){
             if(!(sender instanceof Player p)){sender.sendMessage("§cEste comando requiere un jugador.");return true;}
             if(sub.equals("leave")){plugin.events().leave(p);return true;}
-            if(sub.equals("teamjoin")){if(args.length<3){sender.sendMessage("§cUso: /koth teamjoin <arena> <equipo>");return true;}var event=plugin.events().get(args[1]);if(event==null||!event.participants().contains(p.getUniqueId())){sender.sendMessage("§cDebes participar en ese KOTH para elegir equipo.");return true;}plugin.teams().assign(args[1],p,args[2]);sender.sendMessage("§aTe uniste al equipo "+args[2]+".");return true;}
-            if(sub.equals("teamleave")){if(args.length<2){sender.sendMessage("§cUso: /koth teamleave <arena>");return true;}plugin.teams().unassign(args[1],p);sender.sendMessage("§eSaliste de tu equipo en esa arena.");return true;}
+            if(sub.equals("teamjoin")){if(args.length<3){sender.sendMessage("§cUso: /koth teamjoin <arena> <equipo>");return true;}var event=plugin.events().get(args[1]);if(event==null||event.state()!=KothState.COUNTDOWN||!event.participants().contains(p.getUniqueId())){sender.sendMessage("§cDebes participar y elegir equipo antes de que termine la cuenta regresiva.");return true;}plugin.teams().assign(args[1],p,args[2]);sender.sendMessage("§aTe uniste al equipo "+args[2]+".");return true;}
+            if(sub.equals("teamleave")){if(args.length<2){sender.sendMessage("§cUso: /koth teamleave <arena>");return true;}var event=plugin.events().get(args[1]);if(event==null||event.state()!=KothState.COUNTDOWN){sender.sendMessage("§cSolo puedes cambiar de equipo durante la cuenta regresiva.");return true;}plugin.teams().unassign(args[1],p);sender.sendMessage("§eSaliste de tu equipo en esa arena.");return true;}
             if(args.length<2){sender.sendMessage("§cUso: /koth "+sub+" <arena>");return true;}
             boolean ok=sub.equals("join")?plugin.events().join(args[1],p):plugin.events().spectate(args[1],p);
             sender.sendMessage(ok?"§aAcción completada.":"§cNo se pudo entrar; verifica el evento y tu participación actual.");return true;
@@ -41,7 +42,7 @@ public final class KothCommand {
                 case "setradius" -> {need(args,3);plugin.arenas().radius(args[1],Double.parseDouble(args[2]));sender.sendMessage("§aRadio de captura actualizado.");}
                 case "setmaxplayers" -> {need(args,3);plugin.arenas().maxPlayers(args[1],Integer.parseInt(args[2]));sender.sendMessage("§aLímite de jugadores actualizado.");}
                 case "team" -> {need(args,4);Player target=null;for(Player p:plugin.getServer().getOnlinePlayers().values())if(p.getName().equalsIgnoreCase(args[2]))target=p;if(target==null)throw new IllegalArgumentException("El jugador debe estar conectado.");plugin.teams().assign(args[1],target,args[3]);sender.sendMessage("§aEquipo asignado.");}
-                case "autobalance" -> {need(args,2);var event=plugin.events().get(args[1]);if(event==null)throw new IllegalArgumentException("El evento no está activo.");int index=0;for(Player target:plugin.getServer().getOnlinePlayers().values())if(event.participants().contains(target.getUniqueId()))plugin.teams().assign(args[1],target,(index++%2==0)?"red":"blue");sender.sendMessage("§aEquipos balanceados: red / blue.");}
+                case "autobalance" -> {need(args,2);var event=plugin.events().get(args[1]);if(event==null||event.state()!=KothState.COUNTDOWN)throw new IllegalArgumentException("El balance automático solo se permite durante la cuenta regresiva.");int index=0;for(Player target:plugin.getServer().getOnlinePlayers().values())if(event.participants().contains(target.getUniqueId()))plugin.teams().assign(args[1],target,(index++%2==0)?"red":"blue");sender.sendMessage("§aEquipos balanceados: red / blue.");}
                 case "schedule" -> {need(args,4);plugin.scheduleConfig().set("enabled",true);plugin.scheduleConfig().set("events."+args[1]+".time",args[2]);plugin.scheduleConfig().set("events."+args[1]+".days",java.util.Arrays.asList(args[3].toUpperCase(Locale.ROOT).split(",")));plugin.scheduleConfig().save();sender.sendMessage("§aHorario guardado.");}
                 case "unschedule" -> {need(args,2);plugin.scheduleConfig().getSection("events").remove(args[1]);plugin.scheduleConfig().save();sender.sendMessage("§aHorario eliminado.");}
                 case "reload" -> {plugin.reloadAll();sender.sendMessage("§aConfiguración recargada.");}
