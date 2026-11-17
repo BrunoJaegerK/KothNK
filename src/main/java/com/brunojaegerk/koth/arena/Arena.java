@@ -16,6 +16,7 @@ public final class Arena {
  public boolean hasCenter(){return center;} public void setMode(String v){mode=v;} public void setCaptureMethod(String v){captureMethod=v;}
  public void setCaptureSeconds(int v){captureSeconds=Math.max(1,v);} public void setRadius(double v){radius=Math.max(1,Math.min(64,v));}
  public void setMaxPlayers(int v){maxPlayers=Math.max(1,Math.min(500,v));}
+ private boolean insideBox(double x,double y,double z){return x>=Math.min(x1,x2)&&x<=Math.max(x1,x2)&&y>=Math.min(y1,y2)&&y<=Math.max(y1,y2)&&z>=Math.min(z1,z2)&&z<=Math.max(z1,z2);}
  private void useWorld(Player p){String next=p.getLevel().getName();if(!world.isEmpty()&&!world.equalsIgnoreCase(next))throw new IllegalArgumentException("Todas las posiciones de una arena deben estar en el mismo mundo.");world=next;}
  public void corner(Player p,boolean first){useWorld(p);if(first){x1=p.getX();y1=p.getY();z1=p.getZ();p1=true;}else{x2=p.getX();y2=p.getY();z2=p.getZ();p2=true;}}
  public void center(Player p){useWorld(p);cx=p.getX();cy=p.getY();cz=p.getZ();center=true;}
@@ -44,8 +45,9 @@ public final class Arena {
   center=c.getBoolean(p+".center.set",false);cx=c.getDouble(p+".center.x",0);cy=c.getDouble(p+".center.y",0);cz=c.getDouble(p+".center.z",0);
   spawn=c.getBoolean(p+".spawn.set",false);sx=c.getDouble(p+".spawn.x",0);sy=c.getDouble(p+".spawn.y",0);sz=c.getDouble(p+".spawn.z",0);
   spectator=c.getBoolean(p+".spectator.set",false);tx=c.getDouble(p+".spectator.x",0);ty=c.getDouble(p+".spectator.y",0);tz=c.getDouble(p+".spectator.z",0);
-  radius=c.getDouble(p+".radius",6);captureSeconds=c.getInt(p+".capture-seconds",30);maxPlayers=c.getInt(p+".max-players",50);
-  mode=c.getString(p+".mode","individual");captureMethod=c.getString(p+".capture-method","individual");
+  radius=Math.max(1,Math.min(64,c.getDouble(p+".radius",6)));captureSeconds=Math.max(1,c.getInt(p+".capture-seconds",30));maxPlayers=Math.max(1,Math.min(500,c.getInt(p+".max-players",50)));
+  mode=c.getString(p+".mode","individual");if(!mode.equals("individual")&&!mode.equals("teams"))mode="individual";
+  captureMethod=c.getString(p+".capture-method","individual");if(!captureMethod.equals("individual")&&!captureMethod.equals("majority"))captureMethod="individual";
  }
  public void save(Config c,String p){
   c.set(p+".world",world);c.set(p+".region.p1",p1);c.set(p+".region.p2",p2);
