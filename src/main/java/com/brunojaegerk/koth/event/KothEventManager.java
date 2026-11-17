@@ -148,11 +148,13 @@ public final class KothEventManager {
  }
  public void death(PlayerDeathEvent event){Player victim=event.getEntity();KothEvent victimEvent=find(victim.getUniqueId());UUID id=lastDamager.remove(victim.getUniqueId());if(victimEvent==null)return;stats.death(victim);Player killer=id==null?null:online(id);if(killer!=null){stats.kill(killer);rewards.kill(killer,victimEvent.arena().name());}}
  public void quit(Player p){lastDamager.remove(p.getUniqueId());teleportBypass.remove(p.getUniqueId());for(KothEvent e:active.values()){e.participants().remove(p.getUniqueId());e.spectators().remove(p.getUniqueId());e.returnPositions().remove(p.getUniqueId());e.previousGamemodes().remove(p.getUniqueId());bars.forget(e.arena().name(),p.getUniqueId());sidebars.forget(p.getUniqueId());}}
- public void protectBlock(Block b,Cancellable event){if(!plugin.getConfig().getBoolean("event.protect-region",true))return;for(KothEvent e:active.values())if(e.arena().containsBlock(b)){event.setCancelled();return;}}
- public void protectFlow(Block from,Block to,Cancellable event){if(plugin.getConfig().getBoolean("event.protect-liquids",true)&&(isProtected(from)||isProtected(to)))event.setCancelled();}
+ public void protectBlock(Block b,Cancellable event){if(plugin.getConfig().getBoolean("event.protect-region",true)&&insideAnyRegion(b))event.setCancelled();}
+ public void protectInteraction(Block b,Cancellable event){if(plugin.getConfig().getBoolean("event.protect-interactions",true)&&insideAnyRegion(b))event.setCancelled();}
+ public void protectLiquidBlock(Block b,Cancellable event){if(plugin.getConfig().getBoolean("event.protect-liquids",true)&&insideAnyRegion(b))event.setCancelled();}
+ public void protectFlow(Block from,Block to,Cancellable event){if(plugin.getConfig().getBoolean("event.protect-liquids",true)&&(insideAnyRegion(from)||insideAnyRegion(to)))event.setCancelled();}
  public void protectExplosion(Position pos,Cancellable event){if(plugin.getConfig().getBoolean("event.protect-explosions",true))for(KothEvent e:active.values())if(e.arena().insideRegion(pos.getLevel(),pos.getX(),pos.getY(),pos.getZ())){event.setCancelled();return;}}
- public void filterExplosion(List<Block> blocks){if(plugin.getConfig().getBoolean("event.protect-explosions",true))blocks.removeIf(this::isProtected);}
- private boolean isProtected(Block b){if(!plugin.getConfig().getBoolean("event.protect-region",true))return false;for(KothEvent e:active.values())if(e.arena().containsBlock(b))return true;return false;}
+ public void filterExplosion(List<Block> blocks){if(plugin.getConfig().getBoolean("event.protect-explosions",true))blocks.removeIf(this::insideAnyRegion);}
+ private boolean insideAnyRegion(Block b){if(b==null)return false;for(KothEvent e:active.values())if(e.arena().containsBlock(b))return true;return false;}
  private KothEvent find(UUID id){for(KothEvent e:active.values())if(e.contains(id))return e;return null;}
  private Player online(UUID id){for(Player p:plugin.getServer().getOnlinePlayersList())if(p.getUniqueId().equals(id))return p;return null;}
  private void restore(KothEvent e){for(UUID id:new HashSet<>(e.participants())){Player p=online(id);if(p!=null)restoreOne(e,p);}for(UUID id:new HashSet<>(e.spectators())){Player p=online(id);if(p!=null)restoreOne(e,p);}}
