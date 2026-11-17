@@ -107,6 +107,8 @@ Ejemplo para una arena llamada `castle`:
 | `/koth settime <arena> <segundos>` | Cambia duración de captura |
 | `/koth setradius <arena> <bloques>` | Cambia radio de captura |
 | `/koth setmaxplayers <arena> <cantidad>` | Cambia límite de participantes |
+| `/koth setradius <arena> <bloques>` | Cambia radio de captura |
+| `/koth setmaxplayers <arena> <cantidad>` | Cambia límite de participantes |
 | `/koth setradius <arena> <bloques>` | Cambia radio del punto de captura (1–64) |
 | `/koth setmaxplayers <arena> <cantidad>` | Cambia límite de participantes |
 | `/koth team <arena> <jugador> <equipo>` | Asigna equipo manual |
