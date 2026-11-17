@@ -30,7 +30,7 @@ public final class KothEventManager {
  private String key(String s){return s.toLowerCase(Locale.ROOT);} public boolean running(String n){return active.containsKey(key(n));}
  public boolean start(String name){
   Arena a=arenas.get(name);if(a==null||running(name)||!a.ready()||plugin.getServer().getLevelByName(a.world())==null)return false;
-  int delay=plugin.getConfig().getInt("event.countdown-seconds",60);active.put(key(name),new KothEvent(a,delay));effects.sound(a,Sound.BLOCK_BEACON_ACTIVATE);
+  int delay=plugin.getConfig().getInt("event.countdown-seconds",60);active.put(key(name),new KothEvent(a,delay));effects.sound(a,Sound.BEACON_ACTIVATE);
   plugin.getServer().broadcastMessage(plugin.message("event-starting").replace("{arena}",name).replace("{seconds}",String.valueOf(delay)));return true;
  }
  public boolean stop(String name){KothEvent e=active.remove(key(name));if(e==null)return false;e.state(KothState.ENDING);stats.save();restore(e);plugin.getServer().broadcastMessage(plugin.message("event-stopped").replace("{arena}",name));return true;}
@@ -77,7 +77,7 @@ public final class KothEventManager {
     else{e.state(KothState.AVAILABLE);hud(e,"§eCumple la condición de captura",e.progress()*100/Math.max(1,a.captureSeconds()));}
     continue;
    }
-   if(e.state()==KothState.CONTESTED)effects.sound(a,Sound.BLOCK_BEACON_POWER);
+   if(e.state()==KothState.CONTESTED)effects.sound(a,Sound.BEACON_POWER);
    if(!owner.equals(e.owner())){e.owner(owner);e.progress(0);}
    e.state(KothState.CAPTURING);e.progress(e.progress()+1);for(Player capturer:groups.get(owner))stats.captureTime(capturer);int percent=Math.min(100,e.progress()*100/Math.max(1,a.captureSeconds()));
    effects.ring(a,Particle.TYPE_END_ROD);hud(e,"§aCaptura §f"+percent+"% §8("+e.progress()+"/"+a.captureSeconds()+"s)",percent);
