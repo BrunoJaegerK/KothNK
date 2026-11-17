@@ -2,6 +2,8 @@ package com.brunojaegerk.koth.scoreboard;
 
 import cn.nukkit.Player;
 import cn.nukkit.scoreboard.Scoreboard;
+import cn.nukkit.scoreboard.data.DisplaySlot;
+import cn.nukkit.scoreboard.data.SortOrder;
 import com.brunojaegerk.koth.KingOfTheHillNK;
 import java.util.*;
 
@@ -13,7 +15,7 @@ public final class ScoreboardManager {
  public ScoreboardManager(KingOfTheHillNK plugin){this.plugin=plugin;}
  public void update(Player player,String arena,String state,int progress,int participants,int remaining){
   UUID id=player.getUniqueId();Scoreboard board=boards.get(id);
-  if(board==null){board=new Scoreboard("§6§lKING OF THE HILL",Scoreboard.SortOrder.DESCENDING,Scoreboard.DisplaySlot.SIDEBAR);boards.put(id,board);board.showTo(player);}
+  if(board==null){board=new Scoreboard("§6§lKING OF THE HILL",SortOrder.DESCENDING,DisplaySlot.SIDEBAR);boards.put(id,board);board.showTo(player);}
   List<String> lines=List.of("§7Arena: §f"+arena,"§7Estado: §f"+state,"§7Captura: §a"+progress+"%","§7Jugadores: §f"+participants,"§7Tiempo: §f"+Math.max(0,remaining)+"s");
   if(lines.equals(lastLines.get(id)))return;
   board.holdUpdates();board.clear();int score=lines.size();
