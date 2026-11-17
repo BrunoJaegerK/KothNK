@@ -9,4 +9,7 @@ default:
   team-winner:
     commands: []
     items: []
+  kill:
+    commands: []
+    items: []
 arenas: {}
