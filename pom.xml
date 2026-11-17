@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.brunojaegerk</groupId>
+    <artifactId>KingOfTheHillNK</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <name>KingOfTheHillNK</name>
+    <description>Eventos King of the Hill para NukkitPetteriM1Edition</description>
+    <url>https://github.com/BrunoJaegerK/KothNK</url>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.release>17</maven.compiler.release>
+    </properties>
+    <repositories>
+        <repository>
+            <id>opencollab-snapshots</id>
+            <url>https://repo.opencollab.dev/maven-snapshots/</url>
+            <releases><enabled>false</enabled></releases>
+            <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+        <repository>
+            <id>opencollab-releases</id>
+            <url>https://repo.opencollab.dev/maven-releases/</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>false</enabled></snapshots>
+        </repository>
+    </repositories>
+    <dependencies>
+        <!-- La API la proporciona el servidor; no se empaqueta dentro del plugin. -->
+        <dependency>
+            <groupId>cn.nukkit</groupId>
+            <artifactId>nukkit</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+    <build>
+        <finalName>KingOfTheHillNK-${project.version}</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration><release>17</release><encoding>UTF-8</encoding></configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.4.2</version>
+            </plugin>
+        </plugins>
+    </build>
+</project>
