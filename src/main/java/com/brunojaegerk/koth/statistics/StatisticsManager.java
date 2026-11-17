@@ -10,12 +10,12 @@ public final class StatisticsManager {
  private String path(Player p){return "players."+p.getUniqueId()+".";}
  private void touch(Player p){data.set(path(p)+"name",p.getName());persistMaybe();}
  private void increment(Player p,String field){String key=path(p)+field;data.set(key,data.getInt(key,0)+1);touch(p);}
- private void persistMaybe(){if(++dirty>=20){data.save();dirty=0;}}
+ private void persistMaybe(){if(++dirty>=100){data.save();dirty=0;}}
  public void participation(Player p){increment(p,"participations");}
  public void death(Player p){increment(p,"deaths");}
  public void kill(Player p){increment(p,"kills");}
  public void capture(Player p){increment(p,"captures");}
- public void captureTime(Player p){increment(p,"capture-seconds");}
+ public void captureTime(Player p){String k=path(p)+"capture-seconds";data.set(k,data.getInt(k,0)+1);dirty++;}
  public void win(Player p){
   increment(p,"wins");String base=path(p);int streak=data.getInt(base+"win-streak",0)+1;
   data.set(base+"win-streak",streak);data.set(base+"best-streak",Math.max(streak,data.getInt(base+"best-streak",0)));persistMaybe();
