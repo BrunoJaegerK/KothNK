@@ -24,7 +24,7 @@ public final class RewardManager {
   Object items=config.get(path+".items",List.of());
   if(items instanceof List<?> list)for(Object raw:list)if(raw instanceof Map<?,?> map){
    int id=number(map.get("id"),0),meta=number(map.get("meta"),0),amount=number(map.get("amount"),1);
-   if(id>0&&amount>0)p.getInventory().addItem(Item.get(id,meta,amount));
+   if(id>0&&amount>0){Item[] leftovers=p.getInventory().addItem(Item.get(id,meta,amount));for(Item leftover:leftovers)if(p.getLevel()!=null)p.getLevel().dropItem(p.getPosition(),leftover);}
   }
  }
  private int number(Object o,int fallback){return o instanceof Number?((Number)o).intValue():fallback;}
