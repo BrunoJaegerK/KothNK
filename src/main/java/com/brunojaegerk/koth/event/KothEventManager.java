@@ -138,7 +138,7 @@ public final class KothEventManager {
   if(damager instanceof EntityProjectile projectile&&projectile.shootingEntity instanceof Player shooter)return shooter;
   return null;
  }
- public void death(PlayerDeathEvent event){Player victim=event.getEntity();stats.death(victim);KothEvent victimEvent=find(victim.getUniqueId());UUID id=lastDamager.remove(victim.getUniqueId());Player killer=id==null?null:online(id);if(killer!=null){stats.kill(killer);if(victimEvent!=null)rewards.kill(killer,victimEvent.arena().name());}}
+ public void death(PlayerDeathEvent event){Player victim=event.getEntity();KothEvent victimEvent=find(victim.getUniqueId());UUID id=lastDamager.remove(victim.getUniqueId());if(victimEvent==null)return;stats.death(victim);Player killer=id==null?null:online(id);if(killer!=null){stats.kill(killer);rewards.kill(killer,victimEvent.arena().name());}}
  public void quit(Player p){lastDamager.remove(p.getUniqueId());teleportBypass.remove(p.getUniqueId());for(KothEvent e:active.values()){e.participants().remove(p.getUniqueId());e.spectators().remove(p.getUniqueId());e.returnPositions().remove(p.getUniqueId());e.previousGamemodes().remove(p.getUniqueId());bars.forget(e.arena().name(),p.getUniqueId());sidebars.forget(p.getUniqueId());}}
  public void protectBlock(Block b,Cancellable event){if(!plugin.getConfig().getBoolean("event.protect-region",true))return;for(KothEvent e:active.values())if(e.arena().containsBlock(b)){event.setCancelled();return;}}
  public void protectFlow(Block from,Block to,Cancellable event){if(plugin.getConfig().getBoolean("event.protect-liquids",true)&&(isProtected(from)||isProtected(to)))event.setCancelled();}
