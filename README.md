@@ -21,7 +21,7 @@ Plugin de eventos **King of the Hill** para **NukkitPetteriM1Edition (PM1E)**. A
 - Control de daño entre aliados, disputas entre bandos y restricción de teletransportes de participantes fuera del cuboide.
 - Protección de líquidos, explosiones y cubos mediante eventos reales de PM1E.
 - Modo espectador y restauración del modo de juego y ubicación al salir/finalizar.
-- HUD de progreso con BossBar nativa de PM1E y popup de Bedrock.
+- HUD de progreso con BossBar nativa, sidebar de scoreboard y popup de Bedrock.
 - Anillo de partículas configurable y sonidos nativos para inicio, disputa y victoria.
 
 ## Requisitos
