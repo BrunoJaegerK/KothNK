@@ -28,7 +28,7 @@ public final class KothEventManager {
  private final StatisticsManager stats;private final RewardManager rewards;private final BossBarManager bars;private final ScoreboardManager sidebars;private final CaptureEffects effects;
  private final Map<String,KothEvent> active=new LinkedHashMap<>();private final Map<UUID,UUID> lastDamager=new HashMap<>();private final Set<UUID> teleportBypass=new HashSet<>();
  public KothEventManager(KingOfTheHillNK p,ArenaManager a,TeamManager t,StatisticsManager s,RewardManager r){plugin=p;arenas=a;teams=t;stats=s;rewards=r;bars=new BossBarManager(p);sidebars=new ScoreboardManager(p);effects=new CaptureEffects(p);}
- private String key(String s){return s.toLowerCase(Locale.ROOT);} public boolean running(String n){return active.containsKey(key(n));}
+ private String key(String s){return s.toLowerCase(Locale.ROOT);} public boolean running(String n){return active.containsKey(key(n));}public KothEvent get(String n){return active.get(key(n));}
  public boolean start(String name){
   Arena a=arenas.get(name);if(a==null||running(name)||!a.ready()||plugin.getServer().getLevelByName(a.world())==null)return false;
   int delay=plugin.getConfig().getInt("event.countdown-seconds",60);active.put(key(name),new KothEvent(a,delay));effects.sound(a,Sound.BEACON_ACTIVATE);
@@ -87,7 +87,7 @@ public final class KothEventManager {
  }
  private Map<String,List<Player>> eligible(KothEvent e){
   Map<String,List<Player>> groups=new LinkedHashMap<>();boolean team="teams".equalsIgnoreCase(e.arena().mode());
-  for(Player p:plugin.getServer().getOnlinePlayersList())if(e.participants().contains(p.getUniqueId())&&p.getHealth()>0&&e.arena().inside(p)){
+  for(Player p:plugin.getServer().getOnlinePlayers().values())if(e.participants().contains(p.getUniqueId())&&p.getHealth()>0&&e.arena().inside(p)){
    if(team&&plugin.getConfig().getBoolean("teams.require-assignment",false)&&!teams.isAssigned(e.arena().name(),p))continue;
    groups.computeIfAbsent(teams.group(e.arena().name(),team,p),k->new ArrayList<>()).add(p);
   }return groups;
@@ -97,7 +97,7 @@ public final class KothEventManager {
   if(groups.size()!=1)return null;Map.Entry<String,List<Player>> only=groups.entrySet().iterator().next();
   if("individual".equalsIgnoreCase(e.arena().captureMethod()))return only.getValue().size()==1?only.getKey():null;
   boolean team="teams".equalsIgnoreCase(e.arena().mode());int roster=0;
-  for(Player p:plugin.getServer().getOnlinePlayersList())if(e.participants().contains(p.getUniqueId())&&p.getHealth()>0&&teams.group(e.arena().name(),team,p).equals(only.getKey()))roster++;
+  for(Player p:plugin.getServer().getOnlinePlayers().values())if(e.participants().contains(p.getUniqueId())&&p.getHealth()>0&&teams.group(e.arena().name(),team,p).equals(only.getKey()))roster++;
   return only.getValue().size()>roster/2?only.getKey():null;
  }
  private void finish(KothEvent e,String owner){
@@ -156,7 +156,7 @@ public final class KothEventManager {
  public void filterExplosion(List<Block> blocks){if(plugin.getConfig().getBoolean("event.protect-explosions",true))blocks.removeIf(this::insideAnyRegion);}
  private boolean insideAnyRegion(Block b){if(b==null)return false;for(KothEvent e:active.values())if(e.arena().containsBlock(b))return true;return false;}
  private KothEvent find(UUID id){for(KothEvent e:active.values())if(e.contains(id))return e;return null;}
- private Player online(UUID id){for(Player p:plugin.getServer().getOnlinePlayersList())if(p.getUniqueId().equals(id))return p;return null;}
+ private Player online(UUID id){for(Player p:plugin.getServer().getOnlinePlayers().values())if(p.getUniqueId().equals(id))return p;return null;}
  private void restore(KothEvent e){for(UUID id:new HashSet<>(e.participants())){Player p=online(id);if(p!=null)restoreOne(e,p);}for(UUID id:new HashSet<>(e.spectators())){Player p=online(id);if(p!=null)restoreOne(e,p);}}
  private void restoreOne(KothEvent e,Player p){bars.remove(e.arena().name(),p);sidebars.remove(p);Position pos=e.returnPositions().get(p.getUniqueId());if(pos!=null&&pos.getLevel()!=null)safeTeleport(p,pos);Integer gm=e.previousGamemodes().get(p.getUniqueId());if(gm!=null)p.setGamemode(gm);}
  public void shutdown(){for(KothEvent e:active.values())restore(e);stats.save();active.clear();lastDamager.clear();teleportBypass.clear();bars.clear();sidebars.clear();}
