@@ -49,6 +49,7 @@ public final class KingOfTheHillNK extends PluginBase {
     /** Detiene sesiones antes de sustituir servicios para no dejar jugadores atrapados. */
     public void reloadAll(){
         if(events!=null)events.shutdown();
+        if(statistics!=null)statistics.save();
         getConfig().reload();loadFiles();createServices();
     }
     @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args){return KothCommand.execute(this,sender,args);}
