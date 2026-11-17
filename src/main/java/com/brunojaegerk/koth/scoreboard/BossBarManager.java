@@ -21,6 +21,6 @@ public final class BossBarManager {
         if(arenaBars.isEmpty())ids.remove(key(arena));
     }
     public void forget(String arena,UUID player){Map<UUID,Long> map=ids.get(key(arena));if(map!=null){map.remove(player);if(map.isEmpty())ids.remove(key(arena));}}
-    public void clear(){for(Player p:plugin.getServer().getOnlinePlayersList())for(Map.Entry<String,Map<UUID,Long>> e:ids.entrySet()){Long id=e.getValue().get(p.getUniqueId());if(id!=null)p.removeBossBar(id);}ids.clear();}
+    public void clear(){for(Player p:plugin.getServer().getOnlinePlayers().values())for(Map.Entry<String,Map<UUID,Long>> e:ids.entrySet()){Long id=e.getValue().get(p.getUniqueId());if(id!=null)p.removeBossBar(id);}ids.clear();}
     private String key(String s){return s.toLowerCase(Locale.ROOT);}
 }
