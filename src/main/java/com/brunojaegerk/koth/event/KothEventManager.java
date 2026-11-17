@@ -101,11 +101,11 @@ public final class KothEventManager {
   return only.getValue().size()>roster/2?only.getKey():null;
  }
  private void finish(KothEvent e,String owner){
-  e.state(KothState.CAPTURED);boolean teamMode="teams".equalsIgnoreCase(e.arena().mode());List<Player> winners=new ArrayList<>();
+  e.state(KothState.CAPTURED);boolean teamMode="teams".equalsIgnoreCase(e.arena().mode());String teamName=owner.startsWith("team:")?owner.substring("team:".length()):"";List<Player> winners=new ArrayList<>();
   for(UUID id:e.participants()){
    Player p=online(id);if(p==null)continue;
    boolean won=teams.group(e.arena().name(),teamMode,p).equals(owner);
-   if(won){winners.add(p);stats.win(p);stats.capture(p);rewards.winner(p,e.arena().name(),teamMode);}
+   if(won){winners.add(p);stats.win(p);stats.capture(p);rewards.winner(p,e.arena().name(),teamMode,teamName);}
    else{stats.loss(p);rewards.participation(p,e.arena().name());}
   }
   if(!winners.isEmpty()){
