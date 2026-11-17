@@ -32,7 +32,7 @@ public final class KothEventManager {
   int delay=plugin.getConfig().getInt("event.countdown-seconds",60);active.put(key(name),new KothEvent(a,delay));effects.sound(a,Sound.BLOCK_BEACON_ACTIVATE);
   plugin.getServer().broadcastMessage(plugin.message("event-starting").replace("{arena}",name).replace("{seconds}",String.valueOf(delay)));return true;
  }
- public boolean stop(String name){KothEvent e=active.remove(key(name));if(e==null)return false;e.state(KothState.ENDING);restore(e);plugin.getServer().broadcastMessage(plugin.message("event-stopped").replace("{arena}",name));return true;}
+ public boolean stop(String name){KothEvent e=active.remove(key(name));if(e==null)return false;e.state(KothState.ENDING);stats.save();restore(e);plugin.getServer().broadcastMessage(plugin.message("event-stopped").replace("{arena}",name));return true;}
  public boolean join(String name,Player p){
   KothEvent e=active.get(key(name));if(e==null||e.participants().size()>=e.arena().maxPlayers())return false;
   for(KothEvent other:active.values())if(other.contains(p.getUniqueId()))return false;
@@ -147,5 +147,5 @@ public final class KothEventManager {
  private Player online(UUID id){for(Player p:plugin.getServer().getOnlinePlayersList())if(p.getUniqueId().equals(id))return p;return null;}
  private void restore(KothEvent e){for(UUID id:new HashSet<>(e.participants())){Player p=online(id);if(p!=null)restoreOne(e,p);}for(UUID id:new HashSet<>(e.spectators())){Player p=online(id);if(p!=null)restoreOne(e,p);}}
  private void restoreOne(KothEvent e,Player p){bars.remove(e.arena().name(),p);Position pos=e.returnPositions().get(p.getUniqueId());if(pos!=null&&pos.getLevel()!=null)safeTeleport(p,pos);Integer gm=e.previousGamemodes().get(p.getUniqueId());if(gm!=null)p.setGamemode(gm);}
- public void shutdown(){for(KothEvent e:active.values())restore(e);active.clear();lastDamager.clear();teleportBypass.clear();bars.clear();}
+ public void shutdown(){for(KothEvent e:active.values())restore(e);stats.save();active.clear();lastDamager.clear();teleportBypass.clear();bars.clear();}
 }
