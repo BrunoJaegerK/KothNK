@@ -1,0 +1,12 @@
+default:
+  participation:
+    commands: []
+    items: []
+  winner:
+    commands:
+      - "tell {player} &a¡Ganaste el KOTH {arena}!"
+    items: []
+  team-winner:
+    commands: []
+    items: []
+arenas: {}

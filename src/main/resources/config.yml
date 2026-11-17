@@ -1,0 +1,17 @@
+prefix: "&8[&6KOTH&8] "
+event:
+  countdown-seconds: 60
+  max-duration-seconds: 1800
+  capture-seconds: 30
+  capture-radius: 6
+  max-players: 50
+  reset-progress-when-empty: false
+  show-actionbar: true
+  protect-region: true
+  block-break: true
+  block-place: true
+  friendly-fire: false
+teams:
+  require-assignment: false
+clans:
+  enabled: false

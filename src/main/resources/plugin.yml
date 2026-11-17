@@ -1,0 +1,15 @@
+name: KingOfTheHillNK
+main: com.brunojaegerk.koth.KingOfTheHillNK
+version: "1.0.0-SNAPSHOT"
+api: ["1.0.0"]
+author: BrunoJaegerK
+description: Eventos King of the Hill para NukkitPetteriM1Edition
+softdepend: [ClanSystemMX]
+commands:
+  koth:
+    description: Administra y participa en eventos KOTH
+    usage: "/koth help"
+    permission: koth.use
+permissions:
+  koth.use: { default: true }
+  koth.admin: { default: op }

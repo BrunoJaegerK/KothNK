@@ -1,0 +1,7 @@
+prefix: "&8[&6KOTH&8] "
+event-starting: "&e{arena} inicia en {seconds}s."
+event-started: "&a¡El KOTH {arena} ha comenzado!"
+event-stopped: "&cEl evento {arena} fue detenido."
+joined: "&aTe uniste al KOTH {arena}."
+left: "&eSaliste del KOTH."
+winner: "&6{player} &aha conquistado &e{arena}&a."
