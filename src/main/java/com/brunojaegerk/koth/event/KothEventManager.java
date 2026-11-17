@@ -67,7 +67,7 @@ public final class KothEventManager {
     else{e.state(KothState.AVAILABLE);plugin.getServer().broadcastMessage(plugin.message("event-started").replace("{arena}",a.name()));}continue;
    }
    if(e.state()==KothState.ENDING)continue;e.tickElapsed();
-   if(e.elapsed()>=plugin.getConfig().getInt("event.max-duration-seconds",1800)){it.remove();for(UUID id:e.participants()){Player p=online(id);if(p!=null)rewards.participation(p,a.name());}restore(e);continue;}
+   if(e.elapsed()>=plugin.getConfig().getInt("event.max-duration-seconds",1800)){it.remove();for(UUID id:e.participants()){Player p=online(id);if(p!=null)rewards.participation(p,a.name());}stats.save();restore(e);continue;}
    Map<String,List<Player>> groups=eligible(e);int count=groups.values().stream().mapToInt(List::size).sum();
    if(count==0){e.state(KothState.AVAILABLE);e.owner(null);if(plugin.getConfig().getBoolean("event.reset-progress-when-empty",false))e.progress(0);hud(e,"§7Esperando jugadores",0);continue;}
    String owner=choose(e,groups);
@@ -111,7 +111,7 @@ public final class KothEventManager {
    String names=String.join(", ",winners.stream().map(Player::getName).toList());
    plugin.getServer().broadcastMessage(plugin.message("winner").replace("{player}",names).replace("{arena}",e.arena().name()));
   }
-  restore(e);
+  stats.save();restore(e);
  }
  private void hud(KothEvent e,String text,int percent){
   for(UUID id:e.participants()){Player p=online(id);if(p==null)continue;
