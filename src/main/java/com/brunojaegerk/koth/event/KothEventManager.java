@@ -71,7 +71,7 @@ public final class KothEventManager {
    if(e.state()==KothState.ENDING)continue;e.tickElapsed();
    if(e.elapsed()>=plugin.getConfig().getInt("event.max-duration-seconds",1800)){it.remove();for(UUID id:e.participants()){Player p=online(id);if(p!=null)rewards.participation(p,a.name());}stats.save();restore(e);continue;}
    Map<String,List<Player>> groups=eligible(e);int count=groups.values().stream().mapToInt(List::size).sum();
-   if(count==0){e.state(KothState.AVAILABLE);e.owner(null);if(plugin.getConfig().getBoolean("event.reset-progress-when-empty",false))e.progress(0);hud(e,"§7Esperando jugadores",0);continue;}
+   if(count==0){e.state(KothState.AVAILABLE);if(plugin.getConfig().getBoolean("event.reset-progress-when-empty",false)){e.progress(0);e.owner(null);}hud(e,"§7Esperando jugadores",0);continue;}
    String owner=choose(e,groups);
    if(owner==null){
     if(groups.size()>1){if(e.state()!=KothState.CONTESTED)effects.sound(a,Sound.BLOCK_BELL_HIT);e.state(KothState.CONTESTED);effects.ring(a,Particle.TYPE_CRITICAL);hud(e,"§c¡DISPUTADO! §7Resuelve el combate",e.progress()*100/Math.max(1,a.captureSeconds()));}
