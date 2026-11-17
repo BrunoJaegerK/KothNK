@@ -28,6 +28,7 @@ public final class KingOfTheHillNK extends PluginBase {
         if(!getDataFolder().exists())getDataFolder().mkdirs();
         for(String file:new String[]{"config.yml","arenas.yml","rewards.yml","schedule.yml","messages.yml","stats.yml"})saveResource(file,false);
         loadFiles();createServices();
+        new ClanSystemMxBridge(this).inspectAvailability();
         getServer().getPluginManager().registerEvents(new KothListener(this),this);
         getServer().getScheduler().scheduleRepeatingTask(this,()->{if(events!=null){events.tick();scheduler.tick();}},20);
         new ClanSystemMxBridge(this).inspectAvailability();
