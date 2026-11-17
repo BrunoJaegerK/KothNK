@@ -40,7 +40,7 @@ public final class KingOfTheHillNK extends PluginBase {
         messages=new Config(new File(getDataFolder(),"messages.yml"),Config.YAML);
     }
     private void createServices(){
-        arenaManager=new ArenaManager(arenas);teamManager=new TeamManager();
+        arenaManager=new ArenaManager(arenas,getConfig());teamManager=new TeamManager();
         statistics=new StatisticsManager(new Config(new File(getDataFolder(),"stats.yml"),Config.YAML));
         rewardManager=new RewardManager(this,rewards);
         events=new KothEventManager(this,arenaManager,teamManager,statistics,rewardManager);
