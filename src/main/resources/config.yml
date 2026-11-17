@@ -8,6 +8,7 @@ event:
   reset-progress-when-empty: false
   show-actionbar: true
   show-bossbar: true
+  show-scoreboard: true
   protect-region: true
   protect-interactions: true
   protect-liquids: true
