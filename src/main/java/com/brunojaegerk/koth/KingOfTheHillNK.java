@@ -31,7 +31,6 @@ public final class KingOfTheHillNK extends PluginBase {
         new ClanSystemMxBridge(this).inspectAvailability();
         getServer().getPluginManager().registerEvents(new KothListener(this),this);
         getServer().getScheduler().scheduleRepeatingTask(this,()->{if(events!=null){events.tick();scheduler.tick();}},20);
-        new ClanSystemMxBridge(this).inspectAvailability();
         getLogger().info("KingOfTheHillNK habilitado. Arenas cargadas: "+arenaManager.size());
     }
     private void loadFiles(){
