@@ -33,7 +33,7 @@
     </repository>
   </repositories>
   <profiles>
-    <!-- Compilación normal con la API Nukkit publicada en OpenCollab. -->
+    <!-- Compilación normal con la API PM1E publicada en el repositorio Lanink. -->
     <profile>
       <id>nukkit-api</id>
       <activation><activeByDefault>true</activeByDefault></activation>
