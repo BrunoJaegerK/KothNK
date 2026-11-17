@@ -9,6 +9,10 @@ event:
   show-actionbar: true
   show-bossbar: true
   protect-region: true
+  protect-interactions: true
+  protect-liquids: true
+  protect-explosions: true
+  protect-teleports: true
   block-break: true
   block-place: true
   friendly-fire: false
