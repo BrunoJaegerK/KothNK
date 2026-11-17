@@ -5,6 +5,8 @@ import cn.nukkit.event.Cancellable;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.player.PlayerDeathEvent;
 import cn.nukkit.event.player.PlayerTeleportEvent;
+import cn.nukkit.entity.Entity;
+import cn.nukkit.entity.projectile.EntityProjectile;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
 import cn.nukkit.level.Sound;
@@ -118,7 +120,7 @@ public final class KothEventManager {
   }
  }
  public void damage(EntityDamageByEntityEvent event){
-  if(!(event.getEntity() instanceof Player victim))return;Player attacker=event.getDamager() instanceof Player?(Player)event.getDamager():null;
+  if(!(event.getEntity() instanceof Player victim))return;Player attacker=resolveAttacker(event.getDamager());
   KothEvent ve=find(victim.getUniqueId()),ae=attacker==null?null:find(attacker.getUniqueId());if(ve==null&&ae==null)return;
   if(ve!=null&&ve.spectators().contains(victim.getUniqueId())){event.setCancelled();return;}
   if(ae!=null&&attacker!=null&&ae.spectators().contains(attacker.getUniqueId())){event.setCancelled();return;}
@@ -128,6 +130,11 @@ public final class KothEventManager {
    if(teams.group(ve.arena().name(),team,victim).equals(teams.group(ve.arena().name(),team,attacker))&&!plugin.getConfig().getBoolean("event.friendly-fire",false)){event.setCancelled();return;}
    lastDamager.put(victim.getUniqueId(),attacker.getUniqueId());
   }else if(ve!=ae)event.setCancelled();
+ }
+ private Player resolveAttacker(Entity damager){
+  if(damager instanceof Player player)return player;
+  if(damager instanceof EntityProjectile projectile&&projectile.shootingEntity instanceof Player shooter)return shooter;
+  return null;
  }
  public void death(PlayerDeathEvent event){Player victim=event.getEntity();stats.death(victim);UUID id=lastDamager.remove(victim.getUniqueId());Player killer=id==null?null:online(id);if(killer!=null)stats.kill(killer);}
  public void quit(Player p){lastDamager.remove(p.getUniqueId());teleportBypass.remove(p.getUniqueId());for(KothEvent e:active.values()){e.participants().remove(p.getUniqueId());e.spectators().remove(p.getUniqueId());e.returnPositions().remove(p.getUniqueId());e.previousGamemodes().remove(p.getUniqueId());bars.forget(e.arena().name(),p.getUniqueId());}}
