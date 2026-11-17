@@ -6,6 +6,7 @@ import java.util.*;
 public final class TeamManager {
     private final Map<String,Map<UUID,String>> assigned=new HashMap<>();
     public void assign(String arena,Player player,String team){assigned.computeIfAbsent(key(arena),k->new HashMap<>()).put(player.getUniqueId(),team.toLowerCase(Locale.ROOT));}
+    public boolean isAssigned(String arena,Player player){return assigned.getOrDefault(key(arena),Map.of()).containsKey(player.getUniqueId());}
     public String group(String arena,boolean teams,Player player){
         if(!teams)return "player:"+player.getUniqueId();
         String team=assigned.getOrDefault(key(arena),Map.of()).get(player.getUniqueId());

@@ -16,7 +16,7 @@ Plugin de eventos **King of the Hill** para **NukkitPetteriM1Edition (PM1E)**. A
 - Recompensas por victoria y participación: comandos de consola y objetos por ID/meta/cantidad.
 - Estadísticas persistentes: victorias, derrotas, capturas, eliminaciones y muertes.
 - Horarios automáticos por zona horaria, hora y días de la semana.
-- Protección configurable contra romper/colocar bloques dentro de la región activa.
+- Protección configurable contra romper, colocar e interactuar con bloques dentro del cuboide activo.
 - Control de daño entre aliados y bloqueo de ataques que involucren participantes externos al mismo evento.
 - Modo espectador y restauración del modo de juego y ubicación al salir/finalizar.
 - HUD de progreso con BossBar nativa de PM1E y popup de Bedrock.
@@ -75,7 +75,7 @@ Ejemplo para una arena llamada `castle`:
 - `setcenter`: centro del punto de captura.
 - `setspawn`: aparición de participantes.
 - `setspectator`: aparición de espectadores.
-- El radio inicial de captura se configura en `arenas.yml` como `radius` (por defecto 6 bloques).
+- El radio inicial de captura es 6 bloques y se puede cambiar con `/koth setradius castle 8`. El límite de jugadores se cambia con `/koth setmaxplayers castle 30`.
 
 ## Comandos
 
@@ -104,6 +104,8 @@ Ejemplo para una arena llamada `castle`:
 | `/koth setmode <arena> <individual|teams>` | Cambia modalidad |
 | `/koth setcapture <arena> <individual|majority>` | Cambia método |
 | `/koth settime <arena> <segundos>` | Cambia duración de captura |
+| `/koth setradius <arena> <bloques>` | Cambia radio del punto de captura (1–64) |
+| `/koth setmaxplayers <arena> <cantidad>` | Cambia límite de participantes |
 | `/koth team <arena> <jugador> <equipo>` | Asigna equipo manual |
 | `/koth start <arena>` | Inicia cuenta regresiva |
 | `/koth stop <arena>` | Detiene el evento |
@@ -120,7 +122,7 @@ Días de programación: `MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY,SATURDAY,SUNDA
 Cada jugador es su propio grupo. Con el método `individual`, solo puede capturar si es el único participante vivo dentro del punto.
 
 ### Equipos
-Los jugadores asignados al mismo equipo mediante `/koth team` comparten grupo. Los jugadores sin asignación cuentan como grupos individuales.
+Los jugadores asignados al mismo equipo mediante `/koth team` comparten grupo. Los jugadores sin asignación cuentan como grupos individuales, salvo que `teams.require-assignment: true`, que los excluye de la captura.
 
 ### Método individual
 Exige que haya exactamente un jugador elegible dentro de la zona.
@@ -182,6 +184,8 @@ event:
   block-break: true
   block-place: true
   friendly-fire: false
+teams:
+  require-assignment: false
 ```
 
 Los valores globales se aplican como defaults; cada arena guarda su propio tiempo, modalidad y método de captura.

@@ -1,6 +1,7 @@
 package com.brunojaegerk.koth.event;
 
 import cn.nukkit.Player;
+import cn.nukkit.block.Block;
 import cn.nukkit.event.Cancellable;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.player.PlayerDeathEvent;
@@ -82,6 +83,7 @@ public final class KothEventManager {
     private Map<String,List<Player>> eligible(KothEvent e){
         Map<String,List<Player>> groups=new LinkedHashMap<>();boolean team="teams".equalsIgnoreCase(e.arena().mode());
         for(Player p:plugin.getServer().getOnlinePlayersList())if(e.participants().contains(p.getUniqueId())&&p.getHealth()>0&&e.arena().inside(p)){
+            if(team&&plugin.getConfig().getBoolean("teams.require-assignment",false)&&!teams.isAssigned(e.arena().name(),p))continue;
             String group=teams.group(e.arena().name(),team,p);groups.computeIfAbsent(group,k->new ArrayList<>()).add(p);
         }return groups;
     }
@@ -121,7 +123,7 @@ public final class KothEventManager {
     }
     public void death(PlayerDeathEvent event){Player victim=event.getEntity();stats.death(victim);UUID id=lastDamager.remove(victim.getUniqueId());Player killer=id==null?null:online(id);if(killer!=null)stats.kill(killer);}
     public void quit(Player p){lastDamager.remove(p.getUniqueId());for(KothEvent e:active.values()){e.participants().remove(p.getUniqueId());e.spectators().remove(p.getUniqueId());e.returnPositions().remove(p.getUniqueId());e.previousGamemodes().remove(p.getUniqueId());bossBars.forget(e.arena().name(),p.getUniqueId());}}
-    public void protect(Player p,Cancellable event){if(!plugin.getConfig().getBoolean("event.protect-region",true))return;for(KothEvent e:active.values())if(e.arena().inside(p)){event.setCancelled();return;}}
+    public void protectBlock(Block block,Cancellable event){if(!plugin.getConfig().getBoolean("event.protect-region",true))return;for(KothEvent e:active.values())if(e.arena().containsBlock(block)){event.setCancelled();return;}}
     private KothEvent find(UUID id){for(KothEvent e:active.values())if(e.contains(id))return e;return null;}
     private Player online(UUID id){for(Player p:plugin.getServer().getOnlinePlayersList())if(p.getUniqueId().equals(id))return p;return null;}
     private void restore(KothEvent e){for(UUID id:new HashSet<>(e.participants())){Player p=online(id);if(p!=null)restoreOne(e,p);}for(UUID id:new HashSet<>(e.spectators())){Player p=online(id);if(p!=null)restoreOne(e,p);}}

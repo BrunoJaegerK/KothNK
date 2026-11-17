@@ -26,7 +26,7 @@ public final class KothCommand {
             switch(sub){
                 case "create" -> {need(args,2);sender.sendMessage(plugin.arenas().create(args[1])?"§aArena creada.":"§cEsa arena ya existe.");}
                 case "delete" -> {need(args,2);plugin.events().stop(args[1]);sender.sendMessage(plugin.arenas().delete(args[1])?"§aArena eliminada.":"§cNo existe esa arena.");}
-                case "start" -> {need(args,2);sender.sendMessage(plugin.events().start(args[1])?"§aEvento iniciado/preparándose.":"§cNo se pudo iniciar; revisa la arena y si ya está activa.");}
+                case "start" -> {need(args,2);sender.sendMessage(plugin.events().start(args[1])?"§aEvento iniciado/preparándose.":"§cNo se pudo iniciar; configura pos1, pos2 y centro.");}
                 case "stop","forceend" -> {need(args,2);sender.sendMessage(plugin.events().stop(args[1])?"§aEvento detenido.":"§cNo hay un evento activo.");}
                 case "pos1","pos2","setcenter","setspawn","setspectator" -> {
                     need(args,2);if(!(sender instanceof Player p))throw new IllegalArgumentException("Ejecuta este comando dentro del juego.");
@@ -36,9 +36,11 @@ public final class KothCommand {
                 case "setmode" -> {need(args,3);String v=args[2].toLowerCase(Locale.ROOT);if(!v.equals("individual")&&!v.equals("teams"))throw new IllegalArgumentException("Usa individual o teams.");plugin.arenas().mode(args[1],v);sender.sendMessage("§aModalidad actualizada.");}
                 case "setcapture" -> {need(args,3);String v=args[2].toLowerCase(Locale.ROOT);if(!v.equals("individual")&&!v.equals("majority"))throw new IllegalArgumentException("Usa individual o majority.");plugin.arenas().capture(args[1],v);sender.sendMessage("§aMétodo de captura actualizado.");}
                 case "settime" -> {need(args,3);plugin.arenas().time(args[1],Integer.parseInt(args[2]));sender.sendMessage("§aTiempo de captura actualizado.");}
+                case "setradius" -> {need(args,3);plugin.arenas().radius(args[1],Double.parseDouble(args[2]));sender.sendMessage("§aRadio de captura actualizado.");}
+                case "setmaxplayers" -> {need(args,3);plugin.arenas().maxPlayers(args[1],Integer.parseInt(args[2]));sender.sendMessage("§aLímite de jugadores actualizado.");}
                 case "team" -> {need(args,4);Player target=null;for(Player p:plugin.getServer().getOnlinePlayersList())if(p.getName().equalsIgnoreCase(args[2]))target=p;if(target==null)throw new IllegalArgumentException("El jugador debe estar conectado.");plugin.teams().assign(args[1],target,args[3]);sender.sendMessage("§aEquipo asignado.");}
                 case "schedule" -> {need(args,4);plugin.scheduleConfig().set("enabled",true);plugin.scheduleConfig().set("events."+args[1]+".time",args[2]);plugin.scheduleConfig().set("events."+args[1]+".days",java.util.Arrays.asList(args[3].toUpperCase(Locale.ROOT).split(",")));plugin.scheduleConfig().save();sender.sendMessage("§aHorario guardado.");}
-                case "unschedule" -> {need(args,2);plugin.scheduleConfig().set("events."+args[1],null);plugin.scheduleConfig().save();sender.sendMessage("§aHorario eliminado.");}
+                case "unschedule" -> {need(args,2);plugin.scheduleConfig().getSection("events").remove(args[1]);plugin.scheduleConfig().save();sender.sendMessage("§aHorario eliminado.");}
                 case "reload" -> {plugin.reloadAll();sender.sendMessage("§aConfiguración recargada.");}
                 case "setreward" -> sender.sendMessage("§eEdita plugins/KingOfTheHillNK/rewards.yml y ejecuta /koth reload.");
                 default -> help(sender);
@@ -52,8 +54,8 @@ public final class KothCommand {
         s.sendMessage("§e/koth list, join <arena>, leave, spectate <arena>, stats, top");
         s.sendMessage("§c/koth create|delete|start|stop <arena>");
         s.sendMessage("§c/koth pos1|pos2|setcenter|setspawn|setspectator <arena>");
-        s.sendMessage("§c/koth setmode <arena> <individual|teams>");
-        s.sendMessage("§c/koth setcapture <arena> <individual|majority> §7| §c/koth settime <arena> <segundos>");
+        s.sendMessage("§c/koth setmode <arena> <individual|teams> §7| §c/koth setcapture <arena> <individual|majority>");
+        s.sendMessage("§c/koth settime <arena> <segundos> §7| §c/koth setradius <arena> <bloques> §7| §c/koth setmaxplayers <arena> <cantidad>");
         s.sendMessage("§c/koth team <arena> <jugador> <equipo>");
         s.sendMessage("§c/koth schedule <arena> <HH:mm> <MONDAY,TUESDAY,...> §7| §c/koth unschedule <arena>");
         s.sendMessage("§c/koth setreward <arena> §7| §c/koth reload");
