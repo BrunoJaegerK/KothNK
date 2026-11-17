@@ -128,7 +128,7 @@ public final class KothEventManager {
   if(ve!=null&&ve.spectators().contains(victim.getUniqueId())){event.setCancelled();return;}
   if(ae!=null&&attacker!=null&&ae.spectators().contains(attacker.getUniqueId())){event.setCancelled();return;}
   if(ve!=null&&ve==ae&&attacker!=null){
-   if(!ve.arena().inside(victim)||!ve.arena().inside(attacker)){event.setCancelled();return;}
+   if(!ve.arena().insideRegion(victim.getLevel(),victim.getX(),victim.getY(),victim.getZ())||!ve.arena().insideRegion(attacker.getLevel(),attacker.getX(),attacker.getY(),attacker.getZ())){event.setCancelled();return;}
    boolean team="teams".equalsIgnoreCase(ve.arena().mode());
    if(teams.group(ve.arena().name(),team,victim).equals(teams.group(ve.arena().name(),team,attacker))&&!plugin.getConfig().getBoolean("event.friendly-fire",false)){event.setCancelled();return;}
    lastDamager.put(victim.getUniqueId(),attacker.getUniqueId());
