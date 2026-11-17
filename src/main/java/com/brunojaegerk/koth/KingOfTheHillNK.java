@@ -26,7 +26,7 @@ public final class KingOfTheHillNK extends PluginBase {
 
     @Override public void onEnable() {
         if(!getDataFolder().exists())getDataFolder().mkdirs();
-        for(String file:new String[]{"config.yml","arenas.yml","rewards.yml","schedule.yml","messages.yml"})saveResource(file,false);
+        for(String file:new String[]{"config.yml","arenas.yml","rewards.yml","schedule.yml","messages.yml","stats.yml"})saveResource(file,false);
         loadFiles();createServices();
         getServer().getPluginManager().registerEvents(new KothListener(this),this);
         getServer().getScheduler().scheduleRepeatingTask(this,()->{if(events!=null){events.tick();scheduler.tick();}},20);
