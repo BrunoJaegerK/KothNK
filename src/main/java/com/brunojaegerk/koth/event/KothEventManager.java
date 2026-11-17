@@ -78,7 +78,7 @@ public final class KothEventManager {
    if(!owner.equals(e.owner())){e.owner(owner);e.progress(0);}
    e.state(KothState.CAPTURING);e.progress(e.progress()+1);int percent=Math.min(100,e.progress()*100/Math.max(1,a.captureSeconds()));
    effects.ring(a,Particle.TYPE_END_ROD);hud(e,"§aCaptura §f"+percent+"% §8("+e.progress()+"/"+a.captureSeconds()+"s)",percent);
-   if(e.progress()>=a.captureSeconds()){finish(e,groups.get(owner));it.remove();}
+   if(e.progress()>=a.captureSeconds()){finish(e,owner);it.remove();}
   }
  }
  private Map<String,List<Player>> eligible(KothEvent e){
@@ -96,13 +96,20 @@ public final class KothEventManager {
   for(Player p:plugin.getServer().getOnlinePlayersList())if(e.participants().contains(p.getUniqueId())&&p.getHealth()>0&&teams.group(e.arena().name(),team,p).equals(only.getKey()))roster++;
   return only.getValue().size()>roster/2?only.getKey():null;
  }
- private void finish(KothEvent e,List<Player> winners){
-  e.state(KothState.CAPTURED);Set<UUID> ids=new HashSet<>();boolean team="teams".equalsIgnoreCase(e.arena().mode());
-  for(Player p:winners){ids.add(p.getUniqueId());stats.win(p);stats.capture(p);rewards.winner(p,e.arena().name(),team);}
-  for(UUID id:e.participants()){Player p=online(id);if(p!=null&&!ids.contains(id)){stats.loss(p);rewards.participation(p,e.arena().name());}}
-  effects.sound(e.arena(),Sound.RANDOM_LEVELUP);effects.ring(e.arena(),Particle.TYPE_VILLAGER_HAPPY);
-  String names=String.join(", ",winners.stream().map(Player::getName).toList());
-  plugin.getServer().broadcastMessage(plugin.message("winner").replace("{player}",names).replace("{arena}",e.arena().name()));restore(e);
+ private void finish(KothEvent e,String owner){
+  e.state(KothState.CAPTURED);boolean teamMode="teams".equalsIgnoreCase(e.arena().mode());List<Player> winners=new ArrayList<>();
+  for(UUID id:e.participants()){
+   Player p=online(id);if(p==null)continue;
+   boolean won=teams.group(e.arena().name(),teamMode,p).equals(owner);
+   if(won){winners.add(p);stats.win(p);stats.capture(p);rewards.winner(p,e.arena().name(),teamMode);}
+   else{stats.loss(p);rewards.participation(p,e.arena().name());}
+  }
+  if(!winners.isEmpty()){
+   effects.sound(e.arena(),Sound.RANDOM_LEVELUP);effects.ring(e.arena(),Particle.TYPE_VILLAGER_HAPPY);
+   String names=String.join(", ",winners.stream().map(Player::getName).toList());
+   plugin.getServer().broadcastMessage(plugin.message("winner").replace("{player}",names).replace("{arena}",e.arena().name()));
+  }
+  restore(e);
  }
  private void hud(KothEvent e,String text,int percent){
   for(UUID id:e.participants()){Player p=online(id);if(p==null)continue;
