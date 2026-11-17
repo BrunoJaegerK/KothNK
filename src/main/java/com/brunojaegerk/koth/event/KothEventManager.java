@@ -17,15 +17,16 @@ import com.brunojaegerk.koth.arena.ArenaManager;
 import com.brunojaegerk.koth.effect.CaptureEffects;
 import com.brunojaegerk.koth.reward.RewardManager;
 import com.brunojaegerk.koth.scoreboard.BossBarManager;
+import com.brunojaegerk.koth.scoreboard.ScoreboardManager;
 import com.brunojaegerk.koth.statistics.StatisticsManager;
 import com.brunojaegerk.koth.team.TeamManager;
 import java.util.*;
 
 public final class KothEventManager {
  private final KingOfTheHillNK plugin;private final ArenaManager arenas;private final TeamManager teams;
- private final StatisticsManager stats;private final RewardManager rewards;private final BossBarManager bars;private final CaptureEffects effects;
+ private final StatisticsManager stats;private final RewardManager rewards;private final BossBarManager bars;private final ScoreboardManager sidebars;private final CaptureEffects effects;
  private final Map<String,KothEvent> active=new LinkedHashMap<>();private final Map<UUID,UUID> lastDamager=new HashMap<>();private final Set<UUID> teleportBypass=new HashSet<>();
- public KothEventManager(KingOfTheHillNK p,ArenaManager a,TeamManager t,StatisticsManager s,RewardManager r){plugin=p;arenas=a;teams=t;stats=s;rewards=r;bars=new BossBarManager(p);effects=new CaptureEffects(p);}
+ public KothEventManager(KingOfTheHillNK p,ArenaManager a,TeamManager t,StatisticsManager s,RewardManager r){plugin=p;arenas=a;teams=t;stats=s;rewards=r;bars=new BossBarManager(p);sidebars=new ScoreboardManager(p);effects=new CaptureEffects(p);}
  private String key(String s){return s.toLowerCase(Locale.ROOT);} public boolean running(String n){return active.containsKey(key(n));}
  public boolean start(String name){
   Arena a=arenas.get(name);if(a==null||running(name)||!a.ready()||plugin.getServer().getLevelByName(a.world())==null)return false;
@@ -37,7 +38,7 @@ public final class KothEventManager {
   KothEvent e=active.get(key(name));if(e==null||e.participants().size()>=e.arena().maxPlayers())return false;
   for(KothEvent other:active.values())if(other.contains(p.getUniqueId()))return false;
   e.add(p);stats.participation(p);teleportToArena(p,e.arena(),false);p.sendMessage(plugin.message("joined").replace("{arena}",name));
-  if(plugin.getConfig().getBoolean("event.show-bossbar",true))bars.update(name,p,"§6KOTH §f"+name+" §7Preparando",0);return true;
+  if(plugin.getConfig().getBoolean("event.show-bossbar",true))bars.update(name,p,"§6KOTH §f"+name+" §7Preparando",0);sidebars.update(p,name,"Preparando",0,e.participants().size(),plugin.getConfig().getInt("event.max-duration-seconds",1800));return true;
  }
  public boolean spectate(String name,Player p){
   KothEvent e=active.get(key(name));if(e==null)return false;for(KothEvent other:active.values())if(other.contains(p.getUniqueId()))return false;
@@ -117,6 +118,8 @@ public final class KothEventManager {
   for(UUID id:e.participants()){Player p=online(id);if(p==null)continue;
    if(plugin.getConfig().getBoolean("event.show-actionbar",true))p.sendPopup("§6KOTH §f"+e.arena().name()+" §8| "+text);
    if(plugin.getConfig().getBoolean("event.show-bossbar",true))bars.update(e.arena().name(),p,"§6KOTH §f"+e.arena().name()+" §8| "+text,percent);
+   String state=e.state()==KothState.CONTESTED?"DISPUTADO":e.state()==KothState.CAPTURING?"CAPTURANDO":e.state().name();
+   sidebars.update(p,e.arena().name(),state,percent,e.participants().size(),plugin.getConfig().getInt("event.max-duration-seconds",1800)-e.elapsed());
   }
  }
  public void damage(EntityDamageByEntityEvent event){
@@ -137,7 +140,7 @@ public final class KothEventManager {
   return null;
  }
  public void death(PlayerDeathEvent event){Player victim=event.getEntity();stats.death(victim);KothEvent victimEvent=find(victim.getUniqueId());UUID id=lastDamager.remove(victim.getUniqueId());Player killer=id==null?null:online(id);if(killer!=null){stats.kill(killer);if(victimEvent!=null)rewards.kill(killer,victimEvent.arena().name());}}
- public void quit(Player p){lastDamager.remove(p.getUniqueId());teleportBypass.remove(p.getUniqueId());for(KothEvent e:active.values()){e.participants().remove(p.getUniqueId());e.spectators().remove(p.getUniqueId());e.returnPositions().remove(p.getUniqueId());e.previousGamemodes().remove(p.getUniqueId());bars.forget(e.arena().name(),p.getUniqueId());}}
+ public void quit(Player p){lastDamager.remove(p.getUniqueId());teleportBypass.remove(p.getUniqueId());for(KothEvent e:active.values()){e.participants().remove(p.getUniqueId());e.spectators().remove(p.getUniqueId());e.returnPositions().remove(p.getUniqueId());e.previousGamemodes().remove(p.getUniqueId());bars.forget(e.arena().name(),p.getUniqueId());sidebars.forget(p.getUniqueId());}}
  public void protectBlock(Block b,Cancellable event){if(!plugin.getConfig().getBoolean("event.protect-region",true))return;for(KothEvent e:active.values())if(e.arena().containsBlock(b)){event.setCancelled();return;}}
  public void protectFlow(Block from,Block to,Cancellable event){if(plugin.getConfig().getBoolean("event.protect-liquids",true)&&(isProtected(from)||isProtected(to)))event.setCancelled();}
  public void protectExplosion(Position pos,Cancellable event){if(plugin.getConfig().getBoolean("event.protect-explosions",true))for(KothEvent e:active.values())if(e.arena().insideRegion(pos.getLevel(),pos.getX(),pos.getY(),pos.getZ())){event.setCancelled();return;}}
@@ -147,5 +150,5 @@ public final class KothEventManager {
  private Player online(UUID id){for(Player p:plugin.getServer().getOnlinePlayersList())if(p.getUniqueId().equals(id))return p;return null;}
  private void restore(KothEvent e){for(UUID id:new HashSet<>(e.participants())){Player p=online(id);if(p!=null)restoreOne(e,p);}for(UUID id:new HashSet<>(e.spectators())){Player p=online(id);if(p!=null)restoreOne(e,p);}}
  private void restoreOne(KothEvent e,Player p){bars.remove(e.arena().name(),p);Position pos=e.returnPositions().get(p.getUniqueId());if(pos!=null&&pos.getLevel()!=null)safeTeleport(p,pos);Integer gm=e.previousGamemodes().get(p.getUniqueId());if(gm!=null)p.setGamemode(gm);}
- public void shutdown(){for(KothEvent e:active.values())restore(e);stats.save();active.clear();lastDamager.clear();teleportBypass.clear();bars.clear();}
+ public void shutdown(){for(KothEvent e:active.values())restore(e);stats.save();active.clear();lastDamager.clear();teleportBypass.clear();bars.clear();sidebars.clear();}
 }
