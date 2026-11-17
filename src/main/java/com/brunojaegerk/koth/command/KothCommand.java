@@ -17,7 +17,7 @@ public final class KothCommand {
         if(sub.equals("join")||sub.equals("leave")||sub.equals("spectate")||sub.equals("teamjoin")||sub.equals("teamleave")){
             if(!(sender instanceof Player p)){sender.sendMessage("§cEste comando requiere un jugador.");return true;}
             if(sub.equals("leave")){plugin.events().leave(p);return true;}
-            if(sub.equals("teamjoin")){need(args,3);var event=plugin.events().get(args[1]);if(event==null||!event.participants().contains(p.getUniqueId()))throw new IllegalArgumentException("Debes participar en ese KOTH para elegir equipo.");plugin.teams().assign(args[1],p,args[2]);sender.sendMessage("§aTe uniste al equipo "+args[2]+".");return true;}
+            if(sub.equals("teamjoin")){if(args.length<3){sender.sendMessage("§cUso: /koth teamjoin <arena> <equipo>");return true;}var event=plugin.events().get(args[1]);if(event==null||!event.participants().contains(p.getUniqueId())){sender.sendMessage("§cDebes participar en ese KOTH para elegir equipo.");return true;}plugin.teams().assign(args[1],p,args[2]);sender.sendMessage("§aTe uniste al equipo "+args[2]+".");return true;}
             if(sub.equals("teamleave")){need(args,2);plugin.teams().unassign(args[1],p);sender.sendMessage("§eSaliste de tu equipo en esa arena.");return true;}
             if(args.length<2){sender.sendMessage("§cUso: /koth "+sub+" <arena>");return true;}
             boolean ok=sub.equals("join")?plugin.events().join(args[1],p):plugin.events().spectate(args[1],p);
