@@ -1,5 +1,16 @@
 # KingOfTheHillNK
 
+<p align="center">
+  <img src="https://img.shields.io/badge/Minecraft-Bedrock%20Edition-43A047?style=for-the-badge&logo=minecraft&logoColor=white" alt="Minecraft Bedrock Edition">
+  <img src="https://img.shields.io/badge/Server-NukkitPetteriM1Edition-2196F3?style=for-the-badge" alt="NukkitPetteriM1Edition">
+  <img src="https://img.shields.io/badge/Java-17-orange?style=for-the-badge&logo=openjdk&logoColor=white" alt="Java 17">
+  <img src="https://img.shields.io/badge/Build-Maven-C71A36?style=for-the-badge&logo=apachemaven&logoColor=white" alt="Maven">
+</p>
+
+<p align="center"><b>Plugin King of the Hill para NukkitPetteriM1Edition con múltiples arenas, modos individual y equipos, protección, recompensas, estadísticas y programación.</b></p>
+
+---
+
 Plugin de eventos **King of the Hill** para **NukkitPetteriM1Edition (PM1E)**.
 
 - **Autor:** BrunoJaegerK
@@ -262,3 +273,16 @@ com.brunojaegerk.koth
 - No hay integración nativa con economía ni con plugins de crates; se pueden ejecutar comandos externos desde recompensas.
 - La compilación contra el JAR exacto PM1E requiere disponer del archivo `libs/server.jar`. El perfil público de Nukkit sirve como alternativa de compilación, pero la verificación final debe hacerse contra la misma distribución del servidor objetivo.
 
+## ℹ️ About
+
+Plugin King of the Hill para NukkitPetteriM1Edition con múltiples arenas, modos individual y equipos, protección, recompensas, estadísticas y programación.
+
+- **Autor:** BrunoJaegerK
+- **Servidor objetivo:** NukkitPetteriM1Edition (Minecraft Bedrock)
+- **Repositorio:** https://github.com/BrunoJaegerK/KothNK
+
+## 📜 Licencia
+
+Este proyecto se distribuye bajo **GPL-3.0**. Puedes utilizarlo, modificarlo y redistribuirlo respetando los términos de la licencia, conservando los avisos de copyright y atribución aplicables. En el caso de GPL-3.0, las versiones modificadas distribuidas deben permanecer bajo GPL-3.0 y proporcionar el código fuente correspondiente.
+
+Consulta el archivo [LICENSE](LICENSE) para leer el texto completo.
